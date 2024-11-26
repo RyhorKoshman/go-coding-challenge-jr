@@ -11,7 +11,7 @@ import (
 )
 
 func SetViperConfig() {
-	viper.SetConfigName("config")
+	viper.SetConfigName("file_config")
 	viper.SetConfigType("json")
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
