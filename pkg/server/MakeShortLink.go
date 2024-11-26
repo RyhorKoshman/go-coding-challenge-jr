@@ -33,6 +33,7 @@ func (*Server) MakeShortLink(ctx context.Context, in *proto.Link) (*proto.Link, 
 	if err != nil {
 		log.Fatal(err)
 	}
+	///TODO: incorrect message decode
 	fmt.Printf("%s\n", bodyText)
 	return nil, nil
 }
