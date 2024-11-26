@@ -14,28 +14,29 @@ const url = "https://timercheck.io/"
 
 var client = &http.Client{}
 
-func iterate(freq int64, s grpc.ServerStreamingServer[proto.Timer], name string) {
-	req, _ := http.NewRequest("GET", url+name, nil)
+func iterate(timer *proto.Timer, s grpc.ServerStreamingServer[proto.Timer]) {
+	req, _ := http.NewRequest("GET", url+timer.Name, nil)
 	data, _ := client.Do(req)
 	v := viper.New()
 	v.SetConfigType("json")
 	err := v.ReadConfig(data.Body)
 	if err != nil {
 		fmt.Println("v.ReadConfig err: ", err)
+		return
 	}
-	now := v.GetInt64("seconds_remaining")
+	timer.Seconds = v.GetInt64("seconds_remaining")
 	for {
 
-		time.Sleep(time.Duration(freq) * time.Second)
-		now -= freq
-		if now <= 0 {
+		time.Sleep(time.Duration(timer.Frequency) * time.Second)
+		timer.Seconds -= timer.Frequency
+		if timer.Seconds <= 0 {
+			timer.Seconds = 0
 			break
 		}
-		fmt.Println("Left for ", name, " ", now)
 		e := s.Send(&proto.Timer{
-			Name:      name,
-			Frequency: freq,
-			Seconds:   now,
+			Name:      timer.Name,
+			Frequency: timer.Frequency,
+			Seconds:   timer.Seconds,
 		})
 		if e != nil {
 			fmt.Println("s.Send err: ", e)
@@ -53,12 +54,12 @@ func setNewTimer(t *proto.Timer, s grpc.ServerStreamingServer[proto.Timer]) erro
 	}
 	fmt.Print("Set new Timer: ", t)
 	defer data.Body.Close()
-	iterate(t.Frequency, s, t.Name)
+	iterate(t, s)
 	return nil
 }
 
 func connectExistingTimer(t *proto.Timer, s grpc.ServerStreamingServer[proto.Timer]) error {
-	iterate(t.Frequency, s, t.Name)
+	iterate(t, s)
 	return nil
 }
 
