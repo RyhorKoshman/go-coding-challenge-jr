@@ -18,7 +18,7 @@ func getShortLink(url string) (*proto.Link, error) {
 	}
 	defer conn.Close()
 	c := proto.NewChallengeServiceClient(conn)
-	md := metadata.Pairs("1", "1")
+	md := metadata.New(map[string]string{})
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 	return c.MakeShortLink(ctx, &proto.Link{Data: url})
 }

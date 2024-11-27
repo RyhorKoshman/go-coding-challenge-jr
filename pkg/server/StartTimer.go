@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-const url = "https://timercheck.io/"
+const timerUrl = "https://timercheck.io/"
 
 var client = &http.Client{}
 
 func iterate(timer *proto.Timer, s grpc.ServerStreamingServer[proto.Timer]) {
-	req, _ := http.NewRequest("GET", url+timer.Name, nil)
+	req, _ := http.NewRequest("GET", timerUrl+timer.Name, nil)
 	data, _ := client.Do(req)
 	v := viper.New()
 	v.SetConfigType("json")
@@ -46,7 +46,7 @@ func iterate(timer *proto.Timer, s grpc.ServerStreamingServer[proto.Timer]) {
 }
 
 func setNewTimer(t *proto.Timer, s grpc.ServerStreamingServer[proto.Timer]) error {
-	req, _ := http.NewRequest("GET", url+t.GetName()+"/"+strconv.FormatInt(t.Seconds, 10), nil)
+	req, _ := http.NewRequest("GET", timerUrl+t.GetName()+"/"+strconv.FormatInt(t.Seconds, 10), nil)
 	data, err := client.Do(req)
 	if err != nil {
 		fmt.Println("client.Do err ", err)
@@ -64,7 +64,7 @@ func connectExistingTimer(t *proto.Timer, s grpc.ServerStreamingServer[proto.Tim
 }
 
 func (*Server) StartTimer(t *proto.Timer, s grpc.ServerStreamingServer[proto.Timer]) error {
-	req, _ := http.NewRequest("GET", url+t.GetName(), nil)
+	req, _ := http.NewRequest("GET", timerUrl+t.GetName(), nil)
 	data, err := client.Do(req)
 	if err != nil {
 		return err

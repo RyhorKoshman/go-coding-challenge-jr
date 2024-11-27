@@ -20,7 +20,6 @@ func TestReadMetadata(t *testing.T) {
 	c := proto.NewChallengeServiceClient(conn)
 	md := metadata.Pairs("i-am-random-key", S)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
-	c.ReadMetadata(ctx, &proto.Placeholder{Data: "i-am-random-key"})
 	data, _ := c.ReadMetadata(ctx, &proto.Placeholder{Data: "i-am-random-key"})
 	t.Log(data)
 	if data.Data != S {
